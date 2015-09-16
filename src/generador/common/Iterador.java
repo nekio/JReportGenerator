@@ -63,6 +63,9 @@ public class Iterador {
     }
     
     private void iterar(File ruta,int profundidad){
+        if(ruta.toString().toUpperCase().contains("RECYCLE.BIN"))
+            return;
+        
         String strPesoArchivo = "";
         String strArchivosEnCarpeta = "";
         String strPresentador = null;
@@ -83,11 +86,14 @@ public class Iterador {
                 }
                 
                 if(esArchivo){
-                    if(Configuraciones.mostrarPesoArchivos){
-                        strPesoArchivo = " [" + Util.obtenerPeso(indiceActual.length()) + "]";
+                    if(Configuraciones.mostrarArchivos){
+                        if(Configuraciones.mostrarPesoArchivos){
+                            strPesoArchivo = " [" + Util.obtenerPeso(indiceActual.length()) + "]";
+                        }
+                        
+                        contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo);
                     }
                     
-                    contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo);
                     espacioTotal += (indiceActual.length());
                     archivosTotales++;
                 }else{
@@ -96,11 +102,18 @@ public class Iterador {
                             strArchivosEnCarpeta = " [C:" + String.valueOf(indiceActual.list().length) + "]";
                         }
 
+                        if(profundidad == 0){
+                            contenido.add("");
+                            contenido.add("");
+                        }if(profundidad == 1)
+                            contenido.add("|");
+                        
                         contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo + strArchivosEnCarpeta);
+                        
                         iterar(indiceActual,profundidad+1);
                         carpetasTotales++;
                     }catch(Exception e){
-                        contenido.add("ERROR_CARPETA [" + indiceActual.toString() + "]: " + e);
+                        // La Carpeta Esta Vacia
                     }
                 }
                 
