@@ -8,6 +8,8 @@ package generador.archivo;
 // <editor-fold defaultstate="collapsed" desc="Librerias">
 import generador.contract.Archivo;
 import generador.common.Iterador;
+import generador.common.Util;
+import generador.gui.GUI;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -37,19 +39,35 @@ public class Texto implements Archivo{
         
         Iterador iterador = new Iterador();
         contenido = iterador.getContenido(new File(ruta));
-        
         rutaArchivo = ruta + nombreArchivo;
+        
+        String estadisticas=
+            "Ruta de la carpeta raiz: " + ruta +
+            "\nTotal de Archivos: " + iterador.getArchivosTotales() +
+            "\nTotal de Carpetas: " + iterador.getCarpetasTotales() +
+            "\nEspacio ocupado en Disco Duro: " + Util.obtenerPeso(iterador.getEspacioTotal());
+
+        String lineas[]=estadisticas.split("\n");
+        int x=0;
+        for(; x<lineas.length; x++) 
+            contenido.add(x,lineas[x]);
+        lineas=null;
+        contenido.add(x,"");
+        
         try{
             BufferedWriter bw = new BufferedWriter(new FileWriter(rutaArchivo));
             for(int i=0;i<contenido.size();i++){
                 bw.write(contenido.get(i));
                 bw.newLine();
             }
+            
             bw.close();
             bw=null;
             
             archivoCreado = true;
-        }catch(Exception e){}
+        }catch(Exception e){
+            GUI.mostrarMensaje("ERROR_BUFFER: " + e);
+        }
 
         contenido = null;
         iterador = null;

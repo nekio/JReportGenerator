@@ -67,14 +67,14 @@ public class Iterador {
         String strArchivosEnCarpeta = "";
         String strPresentador = null;
         
+        boolean esArchivo = false;
+        File indiceActual = null;
+        
         File[] listaArchivos=ruta.listFiles();
-        try{
+        try{            
             for(int x=0;x<listaArchivos.length;x++){
-                if(Configuraciones.mostrarPesoArchivos){
-                    strPesoArchivo = " [" + Util.obtenerPeso(listaArchivos[x].length()) + "]";
-                }
-                
-                boolean esArchivo = listaArchivos[x].isFile();
+                indiceActual = listaArchivos[x];
+                esArchivo = indiceActual.isFile();
                 
                 if(Configuraciones.mostrarRutaCompleta){
                     strPresentador = ruta.getAbsolutePath() + File.separator;
@@ -83,22 +83,31 @@ public class Iterador {
                 }
                 
                 if(esArchivo){
-                    if(Configuraciones.mostrarArchivos){
-                        contenido.add(strPresentador + listaArchivos[x].getName() + strPesoArchivo);
-                        espacioTotal += ((listaArchivos[x].length()));
-                        archivosTotales++;
-                    }
-                }else{
-                    if(Configuraciones.mostrarCantidadArchivosPorCarpeta){
-                        strArchivosEnCarpeta = " [C:" + String.valueOf(listaArchivos[x].list().length) + "]";
+                    if(Configuraciones.mostrarPesoArchivos){
+                        strPesoArchivo = " [" + Util.obtenerPeso(indiceActual.length()) + "]";
                     }
                     
-                    contenido.add(strPresentador + listaArchivos[x].getName() + strPesoArchivo + strArchivosEnCarpeta);
-                    iterar(listaArchivos[x],profundidad+1);
-                    carpetasTotales++;
+                    contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo);
+                    espacioTotal += (indiceActual.length());
+                    archivosTotales++;
+                }else{
+                    try{
+                        if(Configuraciones.mostrarCantidadArchivosPorCarpeta){
+                            strArchivosEnCarpeta = " [C:" + String.valueOf(indiceActual.list().length) + "]";
+                        }
+
+                        contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo + strArchivosEnCarpeta);
+                        iterar(indiceActual,profundidad+1);
+                        carpetasTotales++;
+                    }catch(Exception e){
+                        contenido.add("ERROR_CARPETA [" + indiceActual.toString() + "]: " + e);
+                    }
                 }
+                
             }
-        }catch(Exception e){}
+        }catch(Exception e){
+            contenido.add("ERROR_ITERADOR [" + ruta.toString() + "]: " + e);
+        }
     }
     
     private String sangrar(int espacios, boolean esArchivo){

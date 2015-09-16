@@ -8,7 +8,6 @@ package generador.gui;
 // <editor-fold defaultstate="collapsed" desc="Librerias">
 import generador.Generador;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -245,6 +244,8 @@ public class GUI extends JFrame implements DropTargetListener{
         rdCompleto.setOpaque(false);
         rdPersonalizado.setOpaque(false);
         
+        rdPersonalizado.setSelected(true);
+        
         ButtonGroup grupoRadios = new ButtonGroup();
         grupoRadios.add(rdSencillo);
         grupoRadios.add(rdCompleto);
@@ -393,7 +394,7 @@ public class GUI extends JFrame implements DropTargetListener{
         dispose();
     }
     
-    public void mostrarMensaje(String mensaje) {
+    public static void mostrarMensaje(String mensaje) {
         JOptionPane.showMessageDialog(null, mensaje, "Advertencia", JOptionPane.WARNING_MESSAGE);
     }
     // </editor-fold>
