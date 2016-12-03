@@ -71,6 +71,7 @@ public class Iterador {
         String strPresentador = null;
         
         boolean esArchivo = false;
+        boolean anteriorEsCarpeta = false;
         File indiceActual = null;
         
         File[] listaArchivos=ruta.listFiles();
@@ -88,39 +89,86 @@ public class Iterador {
                 if(esArchivo){
                     if(Configuraciones.mostrarArchivos){
                         if(Configuraciones.mostrarPesoArchivos){
-                            strPesoArchivo = " [" + Util.obtenerPeso(indiceActual.length()) + "]";
+                            strPesoArchivo = " <[" + Util.obtenerPeso(indiceActual.length()) + "]>";
                         }
                         
+                        if(anteriorEsCarpeta)
+                            contenido.add(definirNivel(profundidad - 1));
+                            
                         contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo);
                     }
                     
                     espacioTotal += (indiceActual.length());
                     archivosTotales++;
+                    
+                    anteriorEsCarpeta = false;
                 }else{
                     try{
                         if(Configuraciones.mostrarCantidadArchivosPorCarpeta){
-                            strArchivosEnCarpeta = " [C:" + String.valueOf(indiceActual.list().length) + "]";
+                            //strArchivosEnCarpeta = " [A:" + String.valueOf(indiceActual.list().length) + "]";
+                            strArchivosEnCarpeta = getContenidoFile(indiceActual);
                         }
 
                         if(profundidad == 0){
                             contenido.add("");
                             contenido.add("");
-                        }if(profundidad == 1)
+                        }else if(profundidad == 1){
                             contenido.add("|");
+                        }else if(profundidad > 1){
+                            contenido.add(definirNivel(profundidad - 1));
+                        }
                         
-                        contenido.add(strPresentador + indiceActual.getName() + strPesoArchivo + strArchivosEnCarpeta);
+                        contenido.add(
+                            "<" + strPresentador + ">" +
+                            "<<" + indiceActual.getName() + ">>" +
+                            //strPesoArchivo + 
+                            strArchivosEnCarpeta
+                        );
                         
                         iterar(indiceActual,profundidad+1);
                         carpetasTotales++;
                     }catch(Exception e){
                         // La Carpeta Esta Vacia
                     }
+                    
+                    anteriorEsCarpeta = true;
                 }
                 
             }
         }catch(Exception e){
             contenido.add("ERROR_ITERADOR [" + ruta.toString() + "]: " + e);
         }
+    }
+    
+    private String getContenidoFile(File file){
+        String contenido = " [";
+        
+        int carpetas = 0;
+        int archivos = 0;
+        
+        for(File f: file.listFiles()){
+            if(f.isDirectory())
+                carpetas++;
+            else
+                archivos++;
+        }
+        
+        if(carpetas != 0){
+            contenido += "C:" + carpetas;
+            
+            if(archivos != 0)
+                contenido += ", A:" + archivos;
+        }else{
+            if(archivos != 0)
+                contenido += "A:" + archivos;
+            else
+                // Al buscar en el archivo de texto las dobles comillas (") se descubriran las carpetas vacias
+                contenido += "\""; 
+        }
+        
+        contenido += "]";        
+        
+        return contenido;
     }
     
     private String sangrar(int espacios, boolean esArchivo){
@@ -141,11 +189,26 @@ public class Iterador {
         
         String ubicacion="|" + strProfundidad;
         
-        for(int i=0;i<espacios+1;i++){
+        for(int i=0; i<espacios+1; i++){
             ubicacion+=espaciador+" ";
         }
         
         return ubicacion;
+    }
+    
+    private String definirNivel(int nivel){
+        String nivelador = null;
+        String espaciador = "";
+        String guiones = "";
+        
+        for(int i=0; i < nivel; i++){
+            espaciador += "  ";
+            guiones += "-";
+        }
+        
+        nivelador = espaciador + "[" + guiones + "]";
+    
+        return nivelador;
     }
     // </editor-fold>
 }
